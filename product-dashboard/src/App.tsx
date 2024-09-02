@@ -1,26 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import Login from './pages/Login/index';
+import Dashboard from './pages/Dashbord/index';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App: React.FC = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const authStatus = localStorage.getItem('is_authenticated');
+        setIsAuthenticated(authStatus ? JSON.parse(authStatus) : false);
+    }, []);
+
+    if (isAuthenticated === null) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <Router>
+            <Routes>
+                {isAuthenticated ? (
+                    <Route path="/dashboard" element={<Dashboard setIsAuthenticated={setIsAuthenticated} />} />
+                ) : (
+                    <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+                )}
+                <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+            </Routes>
+        </Router>
+    );
+};
 
 export default App;
